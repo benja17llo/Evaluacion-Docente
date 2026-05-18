@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Evaluación Docente – ANDE</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#0c0f1a; --surface:#141827; --surface2:#1a2038;
+  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.13);
+  --accent:#a3e635; --accent2:#818cf8; --accent3:#84cc16;
+  --text:#eef2ff; --muted:#7c8db5; --danger:#f87171;
+  --yes:#84cc16; --no:#f87171; --aveces:#fbbf24;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;min-height:100vh;padding-bottom:60px}
+
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:#0c0f1a;flex-shrink:0}
+.hinfo h1{font-family:'Syne',sans-serif;font-size:15px;font-weight:700}
+.hinfo p{font-size:11px;color:var(--muted)}
+.prog-wrap{height:3px;background:var(--border)}
+.prog-bar{height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s ease;width:0%}
+
+.wrap{max-width:660px;margin:0 auto;padding:28px 16px 0}
+.step{display:none;animation:fu .3s ease}
+.step.active{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+.slabel{font-size:10px;letter-spacing:.12em;color:var(--accent);font-family:'Syne',sans-serif;font-weight:700;text-transform:uppercase;margin-bottom:6px}
+.stitle{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:5px;line-height:1.2}
+.ssub{color:var(--muted);font-size:13px;margin-bottom:24px;line-height:1.5}
+
+.grid{display:grid;gap:8px;margin-bottom:20px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.ocard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 12px;cursor:pointer;text-align:center;transition:all .16s;user-select:none}
+.ocard:hover{border-color:rgba(94,234,212,.35);background:var(--surface2)}
+.ocard.sel{border-color:var(--accent);background:rgba(94,234,212,.08);box-shadow:0 0 0 1px var(--accent)}
+.ocard .oi{font-size:22px;display:block;margin-bottom:6px}
+.ocard .ol{font-family:'Syne',sans-serif;font-size:13px;font-weight:600;display:block}
+.ocard .os{font-size:11px;color:var(--muted);margin-top:2px;display:block}
+
+.dlist{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
+.dcard{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .16s;user-select:none}
+.dcard:hover{border-color:rgba(129,140,248,.35);background:var(--surface2)}
+.dcard.sel{border-color:var(--accent2);background:rgba(129,140,248,.08);box-shadow:0 0 0 1px var(--accent2)}
+.dcard.evaluado{background:rgba(52,211,153,.06);border-color:rgba(52,211,153,.3);opacity:0.85}
+.dav{width:36px;height:36px;border-radius:50%;background:rgba(129,140,248,.18);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--accent2);flex-shrink:0}
+.dav.admin{background:rgba(251,191,36,.18);color:var(--accent3)}
+.dinfo{flex:1}
+.dname{font-family:'Syne',sans-serif;font-size:13px;font-weight:600}
+.dcurso{font-size:11px;color:var(--muted);margin-top:2px}
+.dchk{width:20px;height:20px;border:1.5px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .16s}
+.dcard.sel .dchk{background:var(--accent2);border-color:var(--accent2);color:#fff}
+
+.qblock{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px}
+.qnum{font-size:10px;color:var(--accent);font-family:'Syne',sans-serif;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.qtxt{font-size:14px;font-weight:500;line-height:1.45;margin-bottom:14px}
+.respwrap{display:flex;gap:7px}
+.rbtn{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:10px 6px;cursor:pointer;transition:all .15s;text-align:center;user-select:none;font-family:'Syne',sans-serif;font-size:13px;font-weight:600}
+.rbtn:hover{opacity:.8}
+.rbtn.r-si{background:rgba(52,211,153,.18);border-color:var(--yes);color:var(--yes)}
+.rbtn.r-no{background:rgba(248,113,113,.18);border-color:var(--no);color:var(--no)}
+.rbtn.r-av{background:rgba(251,191,36,.18);border-color:var(--aveces);color:var(--aveces)}
+
+.btnrow{display:flex;gap:8px;margin-top:20px}
+.btn{flex:1;padding:13px;border-radius:12px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .16s;letter-spacing:.02em}
+.btn:hover{background:var(--surface2)}
+.btnp{background:var(--accent);border-color:var(--accent);color:#0c0f1a;flex:2}
+.btnp:hover{opacity:.85}
+.btnp:disabled{opacity:.4;cursor:not-allowed}
+
+.errmsg{font-size:12px;color:var(--danger);margin-top:7px;display:none}
+.errmsg.v{display:block}
+
+.rcards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0}
+.rcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+.rlabel{font-size:11px;color:var(--muted);margin-bottom:4px}
+.rval{font-family:'Syne',sans-serif;font-size:14px;font-weight:600;color:var(--accent)}
+
+.suc{text-align:center;padding:36px 16px}
+.sucicon{width:68px;height:68px;background:rgba(94,234,212,.12);border:2px solid var(--accent);border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:28px}
+
+.banner{background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.25);border-radius:10px;padding:12px 14px;font-size:12px;color:#a5b4fc;margin-bottom:16px;line-height:1.5}
+
+@media(max-width:480px){
+  .g3{grid-template-columns:1fr 1fr}
+  .rcards{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ED</div>
+  <div class="hinfo">
+    <h1>Evaluación de Desempeño Docente</h1>
+    <p>Asociación Nebajense para el Desarrollo Educativo · 2026</p>
+  </div>
+</header>
+<div class="prog-wrap"><div class="prog-bar" id="progBar"></div></div>
+
+<div class="wrap">
+
+  <div class="step active" id="step1">
+    <div class="slabel">Paso 1 de 4</div>
+    <div class="stitle">¿En qué carrera estás?</div>
+    <div class="ssub">Selecciona tu carrera actual.</div>
+    <div class="grid g2" id="carreraGrid"></div>
+    <p class="errmsg" id="e1">Por favor selecciona tu carrera.</p>
+    <div class="btnrow"><button class="btn btnp" onclick="irPaso2()">Continuar →</button></div>
+  </div>
+
+  <div class="step" id="step2">
+    <div class="slabel">Paso 2 de 4</div>
+    <div class="stitle">¿En qué grado estás?</div>
+    <div class="ssub" id="sub2">Grados disponibles para tu carrera.</div>
+    <div class="grid g3" id="gradoGrid"></div>
+    <p class="errmsg" id="e2">Por favor selecciona tu grado.</p>
+    <div class="btnrow">
+      <button class="btn" onclick="irPaso(1)">← Atrás</button>
+      <button class="btn btnp" onclick="irPaso3()">Continuar →</button>
+    </div>
+  </div>
+
+  <div class="step" id="step3">
+    <div class="slabel">Paso 3 de 4</div>
+    <div class="stitle">¿A quién deseas evaluar?</div>
+    <div class="ssub" id="sub3">Docentes de tu grado y carrera.</div>
+    <div class="dlist" id="docenteList"></div>
+    <p class="errmsg" id="e3">Por favor selecciona un docente o personal.</p>
+    <div class="btnrow">
+      <button class="btn" onclick="irPaso(2)">← Atrás</button>
+      <button class="btn btnp" onclick="irPaso4()">Continuar →</button>
+    </div>
+  </div>
+
+  <div class="step" id="step4">
+    <div class="slabel">Paso 4 de 4</div>
+    <div class="stitle">Evaluación</div>
+    <div class="ssub" id="sub4"></div>
+    <div id="pregWrap"></div>
+    <p class="errmsg" id="e4">Por favor responde todas las preguntas.</p>
+    <div class="btnrow">
+      <button class="btn" onclick="irPaso(3)">← Atrás</button>
+      <button class="btn btnp" id="btnEnv" onclick="enviar()">Enviar evaluación</button>
+    </div>
+  </div>
+
+  <div class="step" id="step5">
+    <div class="suc">
+      <div class="sucicon">✓</div>
+      <div class="stitle">¡Gracias por tu evaluación!</div>
+      <p style="color:var(--muted);margin-top:10px;font-size:13px;line-height:1.6">Tu respuesta fue registrada de forma anónima.<br>Tu opinión ayuda a mejorar la educación.</p>
+      <div class="rcards">
+        <div class="rcard"><div class="rlabel">Carrera</div><div class="rval" id="r_carrera"></div></div>
+        <div class="rcard"><div class="rlabel">Grado</div><div class="rval" id="r_grado"></div></div>
+        <div class="rcard"><div class="rlabel">Evaluado</div><div class="rval" id="r_docente"></div></div>
+        <div class="rcard"><div class="rlabel">Curso</div><div class="rval" id="r_curso"></div></div>
+      </div>
+      <button class="btn btnp" style="width:100%" onclick="reiniciar()">Evaluar otro</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ================================================================
+// MAPEO DE CARRERAS A URLS
+// ================================================================
+
+const URL_MAP = {
+  "PC": "https://script.google.com/macros/s/AKfycbwowkPmP_jqpa6hZeb8kUMQAifI5cZa09jOvLmwrSroe_rBhtzLaj9kRutxKOUGZIF-/exec",
+  "COMPU": "https://script.google.com/macros/s/AKfycbx6af8goJcxCUIkN7-SfU94eYSqe-A8HlqrSW0HtJ8L-CwGxaFGkdTFbr-pVKMx6YGn/exec",
+  "MED": "https://script.google.com/macros/s/AKfycby8RWDs1xBiAwk30Fe_Hqr8wb9fWtiYcIf_gV32YzmViZRJnbzLhhlpK6BtZDmwtK5rAQ/exec",
+  "INFANTIL": "https://script.google.com/macros/s/AKfycbw6jpD65rAYIkGS8EI3LD_bSS3GdmCO41Dw3y0bM0j7Hs7jhq1Hj0uaFkrNlSxMan8r5Q/exec",
+  "ADMIN_CC_EDU": "https://script.google.com/macros/s/AKfycbyxny7EWaTs8Ojxa1w3HINBSlM8UBGZ2rB5tVQqI3r7YlEb6q2xTb02cjK8DGMLJglxlw/exec",
+  "ADMIN": "https://script.google.com/macros/s/AKfycbyyEHAppSh-eLf_0BHWCxAzr3lKQBT8eNh7YWqXekbDVf-4eptAwMBSDyeQsvB2_T6emQ/exec"
+};
+
+// ================================================================
+// DATOS
+// ================================================================
+
+const CARRERAS = [
+  { id:"PC",       nombre:"Perito Contador",            icono:"📊", grados:["4°","5°","6°"] },
+  { id:"COMPU",    nombre:"Bach. Computación",           icono:"💻", grados:["4°","5°"] },
+  { id:"MED",      nombre:"Bach. Medicina",              icono:"🩺", grados:["4°","5°"] },
+  { id:"INFANTIL", nombre:"Bach. Educación Infantil",    icono:"🧒", grados:["4°","5°","6°"] },
+  { id:"ADMIN_CC_EDU", nombre:"Adm. / CC. Jurídicas / Educación", icono:"🏢", grados:["5°"] },
+];
+
+const DOCENTES = [
+  // ── 4° PERITO CONTADOR ──
+  {c:"PC",g:"4°",nombre:"Jacinto",        curso:"Introducción a Economía"},
+  {c:"PC",g:"4°",nombre:"María Maritza",  curso:"Contabilidad de Sociedades"},
+  {c:"PC",g:"4°",nombre:"Gualberto de León",curso:"Matemática"},
+  {c:"PC",g:"4°",nombre:"Angel Estilson", curso:"Redacción y Correspondencia"},
+  {c:"PC",g:"4°",nombre:"Benjamín Tello", curso:"Programación"},
+  {c:"PC",g:"4°",nombre:"Vilma Gladys",   curso:"Computación"},
+  {c:"PC",g:"4°",nombre:"Dionicio",       curso:"Fundamentos de Derecho"},
+  {c:"PC",g:"4°",nombre:"Fiama",          curso:"Inglés Comercial"},
+  {c:"PC",g:"4°",nombre:"Elena López",    curso:"Administración"},
+  {c:"PC",g:"4°",nombre:"María Maritza",  curso:"Ortografía y Caligrafía"},
+  // ── 5° PERITO CONTADOR ──
+  {c:"PC",g:"5°",nombre:"Dionicio Marcos",    curso:"Legislación Fiscal y Aduanal"},
+  {c:"PC",g:"5°",nombre:"Werner Ivan",        curso:"Contabilidad de Costos"},
+  {c:"PC",g:"5°",nombre:"María Maritza",      curso:"Mecanografía"},
+  {c:"PC",g:"5°",nombre:"Jacinto de Paz",     curso:"Geografía Económica"},
+  {c:"PC",g:"5°",nombre:"Benjamín Tello",     curso:"Programación"},
+  {c:"PC",g:"5°",nombre:"Vilma Gladys",       curso:"Computación"},
+  {c:"PC",g:"5°",nombre:"Elena López Santiago",curso:"Catalogación"},
+  {c:"PC",g:"5°",nombre:"Fiama",              curso:"Inglés Comercial"},
+  {c:"PC",g:"5°",nombre:"Elena López",        curso:"Cálculo Mercantil"},
+  {c:"PC",g:"5°",nombre:"Floridalma Brito",   curso:"Finanzas"},
+  // ── 6° PERITO CONTADOR ──
+  {c:"PC",g:"6°",nombre:"Asdrubal del Valle", curso:"Estadística"},
+  {c:"PC",g:"6°",nombre:"Benjamín Tello",     curso:"Programación III"},
+  {c:"PC",g:"6°",nombre:"Werner Ivan",        curso:"Contabilidad Gubernamental"},
+  {c:"PC",g:"6°",nombre:"Juan Dionicio",      curso:"Seminario"},
+  {c:"PC",g:"6°",nombre:"Juan Sánchez",       curso:"Derecho Mercantil"},
+  {c:"PC",g:"6°",nombre:"Werner Ivan",        curso:"Práctica Supervisada"},
+  {c:"PC",g:"6°",nombre:"Juan David",         curso:"Contabilidad Bancaria"},
+  {c:"PC",g:"6°",nombre:"Juan David",         curso:"Auditoría"},
+  {c:"PC",g:"6°",nombre:"Elena López",        curso:"Organización de Empresas"},
+  {c:"PC",g:"6°",nombre:"Jacinto de Paz",     curso:"Ética Profesional"},
+  // ── 4° BACH. COMPUTACIÓN ──
+  {c:"COMPU",g:"4°",nombre:"Walberto",      curso:"Matemática"},
+  {c:"COMPU",g:"4°",nombre:"Fiama",         curso:"Inglés"},
+  {c:"COMPU",g:"4°",nombre:"Asdrubal",      curso:"Física Fundamental"},
+  {c:"COMPU",g:"4°",nombre:"Benjamín",      curso:"Laboratorio"},
+  {c:"COMPU",g:"4°",nombre:"Fredy Matías",  curso:"Filosofía"},
+  {c:"COMPU",g:"4°",nombre:"Elena López",   curso:"Contabilidad"},
+  {c:"COMPU",g:"4°",nombre:"Francisca",     curso:"Lengua y Literatura"},
+  {c:"COMPU",g:"4°",nombre:"Francisca",     curso:"Ciencias Sociales"},
+  {c:"COMPU",g:"4°",nombre:"Benito Cedillo",curso:"Expresión Artística"},
+  {c:"COMPU",g:"4°",nombre:"Ester",         curso:"Sistemas e Instalaciones"},
+  {c:"COMPU",g:"4°",nombre:"Estilson",      curso:"Educación Física"},
+  {c:"COMPU",g:"4°",nombre:"Vilma Gladis",  curso:"Computación Aplicada"},
+  // ── 5° BACH. COMPUTACIÓN ──
+  {c:"COMPU",g:"5°",nombre:"Fiama",          curso:"Inglés"},
+  {c:"COMPU",g:"5°",nombre:"Asdrubal",       curso:"Estadística"},
+  {c:"COMPU",g:"5°",nombre:"Francisca",      curso:"Ciencias Sociales"},
+  {c:"COMPU",g:"5°",nombre:"Benjamín",       curso:"Laboratorio II"},
+  {c:"COMPU",g:"5°",nombre:"Francisca",      curso:"Lengua y Literatura"},
+  {c:"COMPU",g:"5°",nombre:"Fredy Matías",   curso:"Seminario"},
+  {c:"COMPU",g:"5°",nombre:"Estilson",       curso:"Química"},
+  {c:"COMPU",g:"5°",nombre:"Ester",          curso:"Biología"},
+  {c:"COMPU",g:"5°",nombre:"Elmer",          curso:"Reparación y Soporte"},
+  {c:"COMPU",g:"5°",nombre:"Benito Cedillo", curso:"Ética Profesional"},
+  {c:"COMPU",g:"5°",nombre:"Walberto",       curso:"Matemática"},
+  {c:"COMPU",g:"5°",nombre:"Vilma Gladis",   curso:"Producción de Contenidos"},
+  {c:"COMPU",g:"5°",nombre:"Benjamín Tello", curso:"Práctica Supervisada"},
+  // ── 4° BACH. MEDICINA ──
+  {c:"MED",g:"4°",nombre:"Asdrubal",      curso:"Física Fundamental"},
+  {c:"MED",g:"4°",nombre:"Fiama",         curso:"Inglés"},
+  {c:"MED",g:"4°",nombre:"Francisca",     curso:"Lengua y Literatura"},
+  {c:"MED",g:"4°",nombre:"Fredy Matías",  curso:"Psicología"},
+  {c:"MED",g:"4°",nombre:"Alfonso",       curso:"Elaboración y Proyectos"},
+  {c:"MED",g:"4°",nombre:"Walberto",      curso:"Matemática"},
+  {c:"MED",g:"4°",nombre:"Benito Cedillo",curso:"Ciencias Sociales"},
+  {c:"MED",g:"4°",nombre:"Ester",         curso:"Filosofía"},
+  {c:"MED",g:"4°",nombre:"Estilson",      curso:"Educación Física"},
+  {c:"MED",g:"4°",nombre:"Ana",           curso:"Educación para la Salud"},
+  {c:"MED",g:"4°",nombre:"Ana",           curso:"Semiología Médica"},
+  {c:"MED",g:"4°",nombre:"Sindy Karen",   curso:"Clínica I"},
+  {c:"MED",g:"4°",nombre:"Sindy Karen",   curso:"Práctica Médica I"},
+  {c:"MED",g:"4°",nombre:"Vilma Gladis",  curso:"Computación"},
+  {c:"MED",g:"4°",nombre:"Estilson",      curso:"Química"},
+  // ── 5° BACH. MEDICINA ──
+  {c:"MED",g:"5°",nombre:"Francisca",     curso:"Lengua y Literatura"},
+  {c:"MED",g:"5°",nombre:"Fiama",         curso:"Inglés"},
+  {c:"MED",g:"5°",nombre:"Vilma Gladis",  curso:"Computación"},
+  {c:"MED",g:"5°",nombre:"Walberto",      curso:"Matemática"},
+  {c:"MED",g:"5°",nombre:"Asdrubal",      curso:"Estadística Descriptiva"},
+  {c:"MED",g:"5°",nombre:"Ester",         curso:"Biología"},
+  {c:"MED",g:"5°",nombre:"Estilson",      curso:"Química"},
+  {c:"MED",g:"5°",nombre:"Alfonso",       curso:"Ciencias Sociales"},
+  {c:"MED",g:"5°",nombre:"Benito Cedillo",curso:"Expresión Artística"},
+  {c:"MED",g:"5°",nombre:"Fredy Matías",  curso:"Seminario"},
+  {c:"MED",g:"5°",nombre:"Sindy Karen",   curso:"Clínica"},
+  {c:"MED",g:"5°",nombre:"Sindy Karen",   curso:"Anatomía"},
+  {c:"MED",g:"5°",nombre:"Ana",           curso:"Semiología Médica"},
+  {c:"MED",g:"5°",nombre:"Ana",           curso:"Anatomía II"},
+  // ── 4° BACH. EDUCACIÓN INFANTIL ──
+  {c:"INFANTIL",g:"4°",nombre:"Miguel Chávez",  curso:"Comunicación y Lenguaje L2"},
+  {c:"INFANTIL",g:"4°",nombre:"Jacinto",         curso:"Educación Bilingüe"},
+  {c:"INFANTIL",g:"4°",nombre:"Alfonso",         curso:"Expresión Artística"},
+  {c:"INFANTIL",g:"4°",nombre:"Estilson",        curso:"Práctica Docente"},
+  {c:"INFANTIL",g:"4°",nombre:"Alfonso",         curso:"Comunicación y Lenguaje L1"},
+  {c:"INFANTIL",g:"4°",nombre:"Vilma",           curso:"Computación"},
+  {c:"INFANTIL",g:"4°",nombre:"Asdrubal",        curso:"Física Fundamental"},
+  {c:"INFANTIL",g:"4°",nombre:"Walberto",        curso:"Matemática"},
+  {c:"INFANTIL",g:"4°",nombre:"Fredy Matías",    curso:"Psicopedagogía"},
+  {c:"INFANTIL",g:"4°",nombre:"Benito Cedillo",  curso:"Historia de la Educación"},
+  // ── 5° BACH. EDUCACIÓN INFANTIL ──
+  {c:"INFANTIL",g:"5°",nombre:"Jacinto",       curso:"Comunicación y Lenguaje L2"},
+  {c:"INFANTIL",g:"5°",nombre:"Fredy Matías",  curso:"Seminario"},
+  {c:"INFANTIL",g:"5°",nombre:"Alfonso",        curso:"Expresión Artística"},
+  {c:"INFANTIL",g:"5°",nombre:"Estilson",       curso:"Práctica Docente"},
+  {c:"INFANTIL",g:"5°",nombre:"Alfonso",        curso:"Idioma Maya II"},
+  {c:"INFANTIL",g:"5°",nombre:"Vilma Gladys",   curso:"Computación"},
+  {c:"INFANTIL",g:"5°",nombre:"Asdrubal",       curso:"Estadística"},
+  {c:"INFANTIL",g:"5°",nombre:"Benito Cedillo", curso:"Medio Social y Natural"},
+  {c:"INFANTIL",g:"5°",nombre:"Benito Cedillo", curso:"Psicopedagogía Infantil"},
+  {c:"INFANTIL",g:"5°",nombre:"Fredy Matías",   curso:"Planificación y Evaluación"},
+  {c:"INFANTIL",g:"5°",nombre:"Miguel Chávez",  curso:"Didáctica de Matemáticas"},
+  // ── 6° BACH. EDUCACIÓN INFANTIL ──
+  {c:"INFANTIL",g:"6°",nombre:"Asdrubal",       curso:"Práctica Docente"},
+  {c:"INFANTIL",g:"6°",nombre:"Benito Cedillo", curso:"Literatura Maya"},
+  {c:"INFANTIL",g:"6°",nombre:"Estilson",       curso:"Didáctica L2"},
+  {c:"INFANTIL",g:"6°",nombre:"Fredy Matías",   curso:"Enfoques Pedagógicos"},
+  {c:"INFANTIL",g:"6°",nombre:"Estilson",       curso:"Química"},
+  {c:"INFANTIL",g:"6°",nombre:"Ester",          curso:"Expresión Artística"},
+  {c:"INFANTIL",g:"6°",nombre:"Jacinto",        curso:"Realidad Social"},
+  {c:"INFANTIL",g:"6°",nombre:"Alfonso",        curso:"Didáctica Idioma Materno"},
+  {c:"INFANTIL",g:"6°",nombre:"Francisca",      curso:"Literatura Universal"},
+  {c:"INFANTIL",g:"6°",nombre:"Ester",          curso:"Medio Social y Natural"},
+  {c:"INFANTIL",g:"6°",nombre:"Vilma Gladys",   curso:"Computación"},
+  // ── 5° ADMINISTRACIÓN ──
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Estilson",      curso:"Educación Física"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Francisca",     curso:"Lengua y Literatura"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Benito",        curso:"Biología"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Fiama",         curso:"Comunicación y Lenguaje L3"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Vilma Gladys",  curso:"Computación"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Walberto",      curso:"Matemática"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Asdrubal",      curso:"Estadística"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Alfonso",       curso:"Ciencias Sociales"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Ester",         curso:"Biología II"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Elena López",   curso:"Contabilidad Financiera"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Fredy Pérez",   curso:"Contabilidad I"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Elena López",   curso:"Administración de Empresas"},
+  // ── 5° CC. JURÍDICAS ──
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Estilson",      curso:"Química"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Francisca",     curso:"Lengua y Literatura"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Benito",        curso:"Expresión Artística"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Fiama",         curso:"Comunicación y Lenguaje L3"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Vilma Gladys",  curso:"Computación"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Walberto",      curso:"Matemática"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Asdrubal",      curso:"Estadística"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Alfonso",       curso:"Ciencias Sociales"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Ester",         curso:"Biología"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Juan Dionicio", curso:"Penal"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Juan Dionicio", curso:"Práctica Jurídica"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Floridalma",    curso:"Nociones de Derecho de Familia"},
+  {c:"ADMIN_CC_EDU",g:"5°",nombre:"Fredy",         curso:"Seminario"},
+];
+
+const PREG_DOC = [
+  "El profesor/a cumple con todos los períodos de la semana.",
+  "El profesor/a es puntual en sus períodos.",
+  "El profesor/a atiende las dudas del estudiante.",
+  "El profesor/a mantiene informados a los estudiantes sobre su zona.",
+  "Considera que el profesor/a tiene dominio de lo que enseña.",
+  "Es fácil acercarse al profesor/a para hacer consultas.",
+  "El profesor/a siempre devuelve los trabajos y las evaluaciones.",
+  "Usted recomienda a este profesor/a para que continúe laborando.",
+];
+
+const PREG_ADM = [
+  "Hay buena atención en secretaría (Juana Chávez).",
+  "Hay buena atención en secretaría (Melany).",
+  "Hay buena atención de parte del Director.",
+  "Hay buena atención de parte del Subdirector.",
+  "Hay buena atención de parte de la encargada de la tesorería.",
+  "Hay buena atención de parte del conserje.",
+  "Ha aprovechado los servicios de los psicólogos.",
+];
+
+// ================================================================
+// ESTADO
+// ================================================================
+let estado = { carrera:null, grado:null, docente:null, respDoc:{}, respAdm:{} };
+let paso = 1;
+let docentesCalificados = new Set();
+
+function cargarDocentesCalificados() {
+  const guardados = localStorage.getItem("docentesCalificados");
+  if (guardados) docentesCalificados = new Set(JSON.parse(guardados));
+}
+
+// ================================================================
+// RENDER
+// ================================================================
+function init() {
+  const cg = document.getElementById("carreraGrid");
+  CARRERAS.forEach((c,i) => {
+    cg.innerHTML += `<div class="ocard" id="c_${i}" onclick="selCarrera(${i})">
+      <span class="oi">${c.icono}</span>
+      <span class="ol">${c.nombre}</span>
+      <span class="os">${c.grados.join(" / ")}</span>
+    </div>`;
+  });
+  actualizarProg();
+}
+
+function selCarrera(i) {
+  estado.carrera = CARRERAS[i];
+  document.querySelectorAll("#carreraGrid .ocard").forEach(x=>x.classList.remove("sel"));
+  document.getElementById("c_"+i).classList.add("sel");
+}
+
+function renderGrados() {
+  const gg = document.getElementById("gradoGrid");
+  gg.innerHTML = "";
+  document.getElementById("sub2").textContent = `Grados de ${estado.carrera.nombre}`;
+  estado.carrera.grados.forEach((g,i) => {
+    gg.innerHTML += `<div class="ocard" id="g_${i}" onclick="selGrado('${g}',${i})">
+      <span class="oi">🎓</span>
+      <span class="ol">${g}</span>
+    </div>`;
+  });
+  if (estado.grado) {
+    const idx = estado.carrera.grados.indexOf(estado.grado);
+    if (idx>=0) document.getElementById("g_"+idx)?.classList.add("sel");
+  }
+}
+
+function selGrado(g,i) {
+  estado.grado = g;
+  document.querySelectorAll("#gradoGrid .ocard").forEach(x=>x.classList.remove("sel"));
+  document.getElementById("g_"+i).classList.add("sel");
+}
+
+function renderDocentes() {
+  const dl = document.getElementById("docenteList");
+  dl.innerHTML = "";
+  document.getElementById("sub3").textContent = `${estado.carrera.nombre} · ${estado.grado}`;
+  const lista = DOCENTES.filter(d => d.c === estado.carrera.id && d.g === estado.grado);
+  if (!lista.length) {
+    dl.innerHTML = `<div class="banner">No se encontraron docentes para esta combinación.</div>`;
+    return;
+  }
+  
+  lista.forEach((d,i) => {
+    const ini = d.nombre.split(" ").slice(-2).map(p=>p[0]).join("").toUpperCase().slice(0,2);
+    const key = d.nombre+"||"+d.curso;
+    const isSel = estado.docente && (estado.docente.nombre+"||"+estado.docente.curso) === key;
+    const yaCalificado = docentesCalificados.has(key);
+    const claseEvaluado = yaCalificado ? " evaluado" : "";
+    dl.innerHTML += `<div class="dcard${isSel?" sel":""}${claseEvaluado}" id="d_${i}" onclick="selDocente(${i},false)">
+      <div class="dav">${ini}</div>
+      <div class="dinfo">
+        <div class="dname">${d.nombre}${yaCalificado ? ' <span style="color:var(--yes);font-size:12px">✓</span>' : ''}</div>
+        <div class="dcurso">${d.curso}</div>
+      </div>
+      <div class="dchk">${yaCalificado ? '✓' : ''}</div>
+    </div>`;
+  });
+  
+  const keyAdmin = "ADMINISTRATIVO||Personal";
+  const isSelAdmin = estado.docente && estado.docente.nombre === "ADMINISTRATIVO";
+  const yaCalifAdmin = docentesCalificados.has(keyAdmin);
+  const claseAdmin = yaCalifAdmin ? " evaluado" : "";
+  dl.innerHTML += `<div class="dcard${isSelAdmin?" sel":""}${claseAdmin}" id="d_admin" onclick="selDocente(null,true)">
+    <div class="dav admin">📋</div>
+    <div class="dinfo">
+      <div class="dname">Personal Administrativo${yaCalifAdmin ? ' <span style="color:var(--yes);font-size:12px">✓</span>' : ''}</div>
+      <div class="dcurso">Encuesta sobre servicios administrativos</div>
+    </div>
+    <div class="dchk">${yaCalifAdmin ? '✓' : ''}</div>
+  </div>`;
+}
+
+let _listaActual = [];
+function selDocente(i, isAdmin) {
+  if (isAdmin) {
+    estado.docente = { nombre: "ADMINISTRATIVO", curso: "Personal", esAdmin: true };
+    document.querySelectorAll(".dcard").forEach(x=>x.classList.remove("sel"));
+    document.getElementById("d_admin")?.classList.add("sel");
+  } else {
+    _listaActual = DOCENTES.filter(d => d.c===estado.carrera.id && d.g===estado.grado);
+    estado.docente = _listaActual[i];
+    estado.docente.esAdmin = false;
+    document.querySelectorAll(".dcard").forEach(x=>x.classList.remove("sel"));
+    document.getElementById("d_"+i)?.classList.add("sel");
+  }
+}
+
+function renderPreguntas() {
+  const esAdmin = estado.docente.esAdmin;
+  document.getElementById("sub4").textContent = esAdmin ? 
+    "Evaluación: Personal Administrativo" :
+    `${estado.docente.nombre} · ${estado.docente.curso} · ${estado.carrera.nombre}`;
+  
+  const pw = document.getElementById("pregWrap");
+  pw.innerHTML = "";
+
+  if (esAdmin) {
+    PREG_ADM.forEach((p,i) => buildPregunta(pw, i, p, "adm"));
+  } else {
+    PREG_DOC.forEach((p,i) => buildPregunta(pw, i, p, "doc"));
+  }
+}
+
+function buildPregunta(container, i, texto, tipo) {
+  const r = tipo==="doc" ? estado.respDoc[i] : estado.respAdm[i];
+  const siCls  = r==="SI"     ? "rbtn r-si"  : "rbtn";
+  const noCls  = r==="NO"     ? "rbtn r-no"  : "rbtn";
+  const avCls  = r==="AVECES" ? "rbtn r-av"  : "rbtn";
+  container.innerHTML += `<div class="qblock">
+    <div class="qnum">${tipo==="doc"?"Pregunta":"Admin"} ${i+1}</div>
+    <div class="qtxt">${texto}</div>
+    <div class="respwrap">
+      <div class="${siCls}"  id="${tipo}_${i}_SI"     onclick="selResp('${tipo}',${i},'SI')">Sí</div>
+      <div class="${noCls}"  id="${tipo}_${i}_NO"     onclick="selResp('${tipo}',${i},'NO')">No</div>
+      <div class="${avCls}"  id="${tipo}_${i}_AVECES" onclick="selResp('${tipo}',${i},'AVECES')">A veces</div>
+    </div>
+  </div>`;
+}
+
+function selResp(tipo, i, val) {
+  if (tipo==="doc") estado.respDoc[i]=val;
+  else estado.respAdm[i]=val;
+  ["SI","NO","AVECES"].forEach(v => {
+    const el = document.getElementById(`${tipo}_${i}_${v}`);
+    if (!el) return;
+    el.className = "rbtn" + (v===val ? (v==="SI"?" r-si":v==="NO"?" r-no":" r-av") : "");
+  });
+}
+
+// ================================================================
+// NAVEGACIÓN
+// ================================================================
+function actualizarProg() {
+  document.getElementById("progBar").style.width = (((paso-1)/4)*100)+"%";
+}
+
+function irPaso(n) {
+  document.getElementById("step"+paso).classList.remove("active");
+  paso = n;
+  document.getElementById("step"+paso).classList.add("active");
+  actualizarProg();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function irPaso2() {
+  document.getElementById("e1").classList.remove("v");
+  if (!estado.carrera) { document.getElementById("e1").classList.add("v"); return; }
+  estado.grado=null; estado.docente=null;
+  renderGrados(); irPaso(2);
+}
+
+function irPaso3() {
+  document.getElementById("e2").classList.remove("v");
+  if (!estado.grado) { document.getElementById("e2").classList.add("v"); return; }
+  estado.docente=null; estado.respDoc={}; estado.respAdm={};
+  renderDocentes(); irPaso(3);
+}
+
+function irPaso4() {
+  document.getElementById("e3").classList.remove("v");
+  if (!estado.docente) { document.getElementById("e3").classList.add("v"); return; }
+  estado.respDoc={}; estado.respAdm={};
+  renderPreguntas(); irPaso(4);
+}
+
+// ================================================================
+// ENVÍO
+// ================================================================
+async function enviar() {
+  document.getElementById("e4").classList.remove("v");
+  const esAdmin = estado.docente.esAdmin;
+  const cantResp = esAdmin ? Object.keys(estado.respAdm).length : Object.keys(estado.respDoc).length;
+  const totalPreg = esAdmin ? PREG_ADM.length : PREG_DOC.length;
+  
+  if (cantResp < totalPreg) {
+    document.getElementById("e4").classList.add("v"); return;
+  }
+  
+  const btn = document.getElementById("btnEnv");
+  btn.textContent = "Enviando…"; btn.disabled = true;
+
+  let payload;
+  let urlAUsar;
+  
+  if (esAdmin) {
+    payload = {
+      timestamp: new Date().toLocaleString("es-GT"),
+      carrera:  estado.carrera.nombre,
+      grado:    estado.grado,
+      ...Object.fromEntries(PREG_ADM.map((_,i) => [`A${i+1}`, estado.respAdm[i]])),
+    };
+    urlAUsar = URL_MAP[estado.carrera.id];
+  } else {
+    payload = {
+      timestamp: new Date().toLocaleString("es-GT"),
+      carrera:  estado.carrera.nombre,
+      grado:    estado.grado,
+      docente:  estado.docente.nombre,
+      curso:    estado.docente.curso,
+      ...Object.fromEntries(PREG_DOC.map((_,i) => [`D${i+1}`, estado.respDoc[i]])),
+    };
+    urlAUsar = URL_MAP[estado.carrera.id];
+  }
+
+  try {
+    await fetch(urlAUsar, { method:"POST", mode:"no-cors",
+      headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload) });
+    
+    const key = esAdmin ? "ADMINISTRATIVO||Personal" : (estado.docente.nombre + "||" + estado.docente.curso);
+    docentesCalificados.add(key);
+    localStorage.setItem("docentesCalificados", JSON.stringify([...docentesCalificados]));
+    
+    mostraConfirmacion();
+    setTimeout(() => {
+      irPaso(3);
+      renderDocentes();
+    }, 1500);
+    
+  } catch(e) {
+    btn.textContent="Enviar evaluación"; btn.disabled=false;
+    alert("Error al enviar. Intenta de nuevo.");
+  }
+}
+
+function mostraConfirmacion() {
+  const modal = document.createElement("div");
+  modal.style.cssText = `
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; text-align: center;
+    z-index: 999; max-width: 300px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  `;
+  modal.innerHTML = `
+    <div style="width:60px;height:60px;background:rgba(52,211,153,.15);border:2px solid var(--yes);border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px">✓</div>
+    <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:600;margin-bottom:6px;color:var(--text)">¡Evaluación registrada!</div>
+    <p style="font-size:13px;color:var(--muted)">Regresando a la lista...</p>
+  `;
+  document.body.appendChild(modal);
+  setTimeout(() => modal.remove(), 1500);
+}
+
+function reiniciar() {
+  estado = { carrera:null, grado:null, docente:null, respDoc:{}, respAdm:{} };
+  document.querySelectorAll(".ocard,.dcard").forEach(x=>x.classList.remove("sel"));
+  irPaso(1);
+  document.getElementById("progBar").style.width="0%";
+}
+
+window.addEventListener('load', () => {
+  cargarDocentesCalificados();
+  init();
+});
+</script>
+</body>
+</html>
